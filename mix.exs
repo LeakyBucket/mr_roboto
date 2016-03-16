@@ -27,6 +27,8 @@ defmodule MrRoboto.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.8.0"}]
+    [{:httpoison, "~> 0.8.0"},
+     {:credo, "~> 0.3", only: [:dev, :test]},
+     {:coverex, "~> 1.4.8", only: :test}]
   end
 end
