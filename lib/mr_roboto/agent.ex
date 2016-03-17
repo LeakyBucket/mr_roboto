@@ -9,7 +9,7 @@ defmodule MrRoboto.Agent do
     GenServer.start_link(__MODULE__, %{})
   end
 
-  def handle_call({:check, site}, state) do
+  def handle_call({:check, site}, _from, state) do
     case update_robot(site, state) do
       {:ok, decision, new_history} ->
         {:reply, {:ok, decision}, new_history}
