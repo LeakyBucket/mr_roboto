@@ -34,6 +34,12 @@ defmodule MrRoboto.ParserTest do
     assert {"some other crap", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
   end
 
+  test "user_agent adds a user-agent to the block when there is a leading ' '" do
+    data = " google-news\n"
+
+    assert {"", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
+  end
+
   test "allow adds an allow entry to the block when '\\n' terminated" do
     data = "/\n"
 
@@ -50,6 +56,12 @@ defmodule MrRoboto.ParserTest do
     data = "/ some other crap"
 
     assert {"some other crap", %{allow: ["/"]}} = Parser.allow("", data, %{})
+  end
+
+  test "allow adds an allow entry when there is a ' ' before the entry" do
+    data = " /\n"
+
+    assert {"", %{allow: ["/"]}} = Parser.allow("", data, %{})
   end
 
   test "build_rules creates a rule for each user-agent in the block" do
