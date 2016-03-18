@@ -4,6 +4,17 @@ defmodule MrRoboto.ParserTest do
   alias MrRoboto.Parser
   alias MrRoboto.Rules
 
+  @single_agent """
+  user-agent: *
+  allow: /
+  """
+
+  test "parse returns a single record for one user-agent" do
+    expected = [%Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}]
+
+    assert ^expected = Parser.start_parse @single_agent
+  end
+
   test "consume_comment processes up to '\\n'" do
     data = "#comment\nuser-agent: MrRoboto"
 

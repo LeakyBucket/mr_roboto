@@ -3,13 +3,13 @@ defmodule MrRoboto.Parser do
 
   #parse takes the binary, a map for the current block and an accumulator for blocks
   def start_parse(body) do
-    parse body, %{}, []
+    parse body, new_block, []
   end
 
-  def parse("", _block, results), do: results
+  def parse("", block, results), do: build_rules(block) ++ results
   def parse(<<"#", rest :: binary>>, block, results), do: parse(consume_comment(rest), block, results)
   def parse(<<"allow:", rest :: binary>>, block, results) do
-    {remaining, updated_block} = allow(rest, block, results)
+    {remaining, updated_block} = allow("", rest, block)
     parse(remaining, updated_block, results)
   end
   def parse(<<"user-agent:", rest :: binary>>, block, results) do
@@ -19,13 +19,10 @@ defmodule MrRoboto.Parser do
         parse(remaining, updated_block, results)
       _ ->
         new_results = build_rules(block) ++ results
-        {remaining, new_block} = user_agent("", rest, %{})
-        parse(remaining, new_block, new_results)
+        {remaining, block} = user_agent("", rest, new_block)
+        parse(remaining, block, new_results)
     end
   end
-
-  # if current has only user-agent values then additional user-agent continues same block
-  # if current has any attributes other than user-agent then a new user-agent is a new block
 
   def user_agent("", <<" ", rest :: binary>>, block), do: user_agent("", rest, block)
   def user_agent(name, <<"#", rest :: binary>>, block), do: {"#" <> rest, add_agent(block, name)}
@@ -60,8 +57,12 @@ defmodule MrRoboto.Parser do
   end
 
   def build_rules(block) do
-    Enum.map(block.user_agents, fn agent ->
+    Enum.map(block[:user_agents], fn agent ->
       %Rules{user_agent: agent, allow: block.allow, disallow: block.disallow}
     end)
+  end
+
+  def new_block do
+    %{user_agents: [], allow: [], disallow: [], delay: nil}
   end
 end
