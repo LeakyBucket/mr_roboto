@@ -91,7 +91,19 @@ defmodule MrRoboto.ParserTest do
     assert %{user_agents: ["google-news", "google"]} = Parser.add_agent(%{user_agents: ["google"]}, "google-news")
   end
 
-  test "add_allow adds an allow entry to the block map" do
+  test "it adds an initial allow entry to the block map" do
     assert %{allow: ["/"]} = Parser.add_allow(%{}, "/")
+  end
+
+  test "it adds an additional allow entry to the block map" do
+    assert %{allow: ["/foo", "/"]} = Parser.add_allow(%{allow: ["/"]}, "/foo")
+  end
+
+  test "it adds an initial disallow value to the block map" do
+    assert %{disallow: ["/foo"]} = Parser.add_disallow(%{}, "/foo")
+  end
+
+  test "it adds an additional disallow value to the block map" do
+    assert %{disallow: ["/foo", "/bar"]} = Parser.add_disallow(%{disallow: ["/bar"]}, "/foo")
   end
 end
