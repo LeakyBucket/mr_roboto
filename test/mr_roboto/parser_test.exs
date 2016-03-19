@@ -5,8 +5,8 @@ defmodule MrRoboto.ParserTest do
   alias MrRoboto.Rules
 
   @single_agent """
-  user-agent: *
-  allow: /
+  User-agent: *
+  Allow: /
   """
 
   test "parse returns a single record for one user-agent" do
@@ -51,28 +51,28 @@ defmodule MrRoboto.ParserTest do
     assert {"", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
   end
 
-  test "allow adds an allow entry to the block when '\\n' terminated" do
+  test "it reads a '\\n' terminated value" do
     data = "/\n"
 
-    assert {"", %{allow: ["/"]}} = Parser.allow("", data, %{})
+    assert {"/", ""} = Parser.get_value("", data)
   end
 
-  test "allow adds an allow entry when terminated with a comment" do
+  test "it reads a comment terminated value" do
     data = "/#touchy feely comment"
 
-    assert {"#touchy feely comment", %{allow: ["/"]}} = Parser.allow("", data, %{})
+    assert {"/", "#touchy feely comment"} = Parser.get_value("", data)
   end
 
-  test "allow adds an allow entry to the block when ' ' terminated" do
+  test "it consumes the value when terminated with a space" do
     data = "/ some other crap"
 
-    assert {"some other crap", %{allow: ["/"]}} = Parser.allow("", data, %{})
+    assert {"/", "some other crap"} = Parser.get_value("", data)
   end
 
-  test "allow adds an allow entry when there is a ' ' before the entry" do
+  test "it consumes the value when preceeded with a space" do
     data = " /\n"
 
-    assert {"", %{allow: ["/"]}} = Parser.allow("", data, %{})
+    assert {"/", ""} = Parser.get_value("", data)
   end
 
   test "build_rules creates a rule for each user-agent in the block" do
