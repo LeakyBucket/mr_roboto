@@ -1,0 +1,7 @@
+# Just a comment
+
+User-agent: *
+Allow: /
+
+User-agent: google-news
+Disallow: /secrets

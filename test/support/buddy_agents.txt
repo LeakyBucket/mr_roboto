@@ -1,0 +1,4 @@
+User-agent: google-news
+User-agent: mommy
+Allow: /
+Disallow: /secrets

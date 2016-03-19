@@ -4,15 +4,26 @@ defmodule MrRoboto.ParserTest do
   alias MrRoboto.Parser
   alias MrRoboto.Rules
 
-  @single_agent """
-  User-agent: *
-  Allow: /
-  """
+  @single_agent Path.expand(".") <> "/test/support/single_agent.txt"
+  @double_agent Path.expand(".") <> "/test/support/double_agent.txt"
+  @buddy_agents Path.expand(".") <> "/test/support/buddy_agents.txt"
 
-  test "parse returns a single record for one user-agent" do
-    expected = [%Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}]
+  test "it builds a single record for a file with one 'User-agent'" do
+    {:ok, content} = File.read @single_agent
 
-    assert ^expected = Parser.start_parse @single_agent
+    assert [%Rules{}] = Parser.start_parse content
+  end
+
+  test "it builds two rules for a file with two separate 'User-agent' blocks" do
+    {:ok, content} = File.read @double_agent
+
+    assert [%Rules{}, %Rules{}] = Parser.start_parse content
+  end
+
+  test "it builds two rules for a file with two 'User-agent' declarations sharing a block" do
+    {:ok, content} = File.read @buddy_agents
+
+    assert [%Rules{}, %Rules{}] = Parser.start_parse content
   end
 
   test "consume_comment processes up to '\\n'" do
