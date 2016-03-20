@@ -38,30 +38,6 @@ defmodule MrRoboto.ParserTest do
     assert "user-agent: MrRoboto" = Parser.consume_comment data
   end
 
-  test "user_agent adds a user-agent to the block when '\\n' terminated" do
-    data = "google-news\n"
-
-    assert {"", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
-  end
-
-  test "user_agent adds a user-agent when terminated with a comment" do
-    data = "google-news#touchy feely comment"
-
-    assert {"#touchy feely comment", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
-  end
-
-  test "user_agent adds a user-agent to the block when ' ' terminated" do
-    data = "google-news some other crap"
-
-    assert {"some other crap", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
-  end
-
-  test "user_agent adds a user-agent to the block when there is a leading ' '" do
-    data = " google-news\n"
-
-    assert {"", %{user_agents: ["google-news"]}} = Parser.user_agent("", data, %{})
-  end
-
   test "it reads a '\\n' terminated value" do
     data = "/\n"
 

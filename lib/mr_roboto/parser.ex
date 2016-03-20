@@ -24,12 +24,14 @@ defmodule MrRoboto.Parser do
   def parse(<<"User-agent:", rest :: binary>>, block, results) do
     case block do
       %{user_agents: _agents, allow: [], disallow: [], delay: nil} ->
-        {remaining, updated_block} = user_agent("", rest, block)
+        {name, remaining} = get_value("", rest)
+        updated_block = add_agent(block, name)
         parse(remaining, updated_block, results)
       _ ->
         new_results = build_rules(block) ++ results
-        {remaining, block} = user_agent("", rest, new_block)
-        parse(remaining, block, new_results)
+        {name, remaining} = get_value("", rest)
+        updated_block = add_agent(new_block, name)
+        parse(remaining, updated_block, new_results)
     end
   end
 
@@ -42,14 +44,6 @@ defmodule MrRoboto.Parser do
   def get_value(name, <<"\r\n", rest :: binary>>), do: {name, rest}
   def get_value(name, <<char :: size(8), rest :: binary>>) do
     get_value name <> IO.chardata_to_string([char]), rest
-  end
-
-  def user_agent("", <<" ", rest :: binary>>, block), do: user_agent("", rest, block)
-  def user_agent(name, <<"#", rest :: binary>>, block), do: {"#" <> rest, add_agent(block, name)}
-  def user_agent(name, <<" ", rest :: binary>>, block), do: {rest, add_agent(block, name)}
-  def user_agent(name, <<"\n", rest :: binary>>, block), do: {rest, add_agent(block, name)}
-  def user_agent(name, <<char :: size(8), rest :: binary>>, block) do
-    user_agent name <> IO.chardata_to_string([char]), rest, block
   end
 
   def consume_comment(<<"\n", rest :: binary>>), do: rest
