@@ -1,5 +1,5 @@
 defmodule MrRoboto.Rules do
-  defstruct user_agent: '', allow: [], disallow: [], crawl_delay: 1000
+  defstruct user_agent: "", allow: [], disallow: [], crawl_delay: 1000
 
   def agent(rule, name) do
     struct(rule, user_agent: name)
