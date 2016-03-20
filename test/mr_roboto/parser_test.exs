@@ -1,5 +1,6 @@
 defmodule MrRoboto.ParserTest do
   use ExUnit.Case, async: true
+  doctest MrRoboto.Parser
 
   alias MrRoboto.Parser
   alias MrRoboto.Rules

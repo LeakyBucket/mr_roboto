@@ -12,8 +12,8 @@ defmodule MrRoboto.Parser do
 
   ## Examples
 
-    iex> body = "User-agent: *\nAllow: /"
-    iex> MrRoboto.Parser.start_parse body
+    iex> body = "User-agent: *\\nAllow: /"
+    ...> MrRoboto.Parser.start_parse body
     [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}]
 
   """
@@ -29,11 +29,11 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> body = "User-agent: *"
-    iex> MrRoboto.Parser.parse body, MrRoboto.Parser.new_block, []
+    ...> MrRoboto.Parser.parse body, MrRoboto.Parser.new_block, []
     [%MrRoboto.Rules{user_agent: "*", allow: [], disallow: [], crawl_delay: 1000}]
 
-    iex> body = "User-agent: *\nAllow: /\nDisallow: /foo/"
-    iex> MrRoboto.Parser.parse body, MrRoboto.Parser.new_block, []
+    iex> body = "User-agent: *\\nAllow: /\\nDisallow: /foo/"
+    ...> MrRoboto.Parser.parse body, MrRoboto.Parser.new_block, []
     [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}]
 
   """
@@ -70,22 +70,23 @@ defmodule MrRoboto.Parser do
   @doc """
   Collects all non-terminal characters following a clause match in `parse/3`
 
-  Returns the binary part following the directive match plus any number of spaces up to a terminating character
+  Returns a tuple containing the matched `value` and the rest of the `content`
 
   ## Examples
 
     iex> MrRoboto.Parser.get_value "", "value #comment"
-    "value"
+    {"value", "#comment"}
 
-    iex> MrRoboto.Parser.get_value "", " value\n"
-    "value"
+    iex> MrRoboto.Parser.get_value "", " value\\n"
+    {"value", ""}
 
     iex> MrRoboto.Parser.get_value "", "value other stuff"
-    "value"
+    {"value", "other stuff"}
 
   """
   def get_value(value, contents)
   def get_value("", <<" ", rest :: binary>>), do: get_value("", rest)
+  def get_value(name, ""), do: {name, ""}
   def get_value(name, <<"#", rest :: binary>>), do: {name, "#" <> rest}
   def get_value(name, <<" ", rest :: binary>>), do: {name, rest}
   def get_value(name, <<"\n", rest :: binary>>), do: {name, rest}
@@ -101,8 +102,9 @@ defmodule MrRoboto.Parser do
 
   ## Examples
 
-    iex> MrRoboto.Parser.consume_comment "the body of a comment\nUser-agent: *"
+    iex> MrRoboto.Parser.consume_comment "the body of a comment\\nUser-agent: *"
     "User-agent: *"
+
   """
   def consume_comment(<<"\n", rest :: binary>>), do: rest
   def consume_comment(<<"\r\n", rest :: binary>>), do: rest
@@ -175,12 +177,12 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> block = %{user_agents: ["*"], allow: ["/"], disallow: ["/foo/"], delay: nil}
-    iex> MrRoboto.Parser.build_rules block
-    [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_dealy: 1000}]
+    ...> MrRoboto.Parser.build_rules block
+    [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}]
 
     iex> block = %{user_agents: ["google-news", "*"], allow: ["/"], disallow: ["/foo/"], delay: nil}
-    iex> MrRoboto.Parser.build_rules block
-    [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow:["/foo/"], crawl_delay: 1000}, %MrRoboto.Parser{user_agent: "google-news", allow: ["/"], disallow: ["/foo/"], crawl_dealy: 1000}]
+    ...> MrRoboto.Parser.build_rules block
+    [%MrRoboto.Rules{user_agent: "google-news", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}, %MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}]
 
   """
   def build_rules(block) do
