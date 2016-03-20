@@ -5,6 +5,8 @@ defmodule MrRoboto.Mixfile do
     [app: :mr_roboto,
      version: "0.0.1",
      elixir: "~> 1.2",
+     name: "Mr. Roboto",
+     source_url: "https://github.com/LeakyBucket/mr_roboto",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      test_coverage: [tool: Coverex.Task, coveralls: true],
@@ -31,6 +33,8 @@ defmodule MrRoboto.Mixfile do
   defp deps do
     [{:httpoison, "~> 0.8.0"},
      {:credo, "~> 0.3", only: [:dev, :test]},
-     {:coverex, "~> 1.4.8", only: :test}]
+     {:coverex, "~> 1.4.8", only: :test},
+     {:earmark, "~> 0.1", only: :dev},
+     {:ex_doc, "~> 0.11", only: :dev}]
   end
 end
