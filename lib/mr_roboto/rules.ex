@@ -39,6 +39,8 @@ defmodule MrRoboto.Rules do
 
   ## Examples
 
+  As per Google's documentation [here](https://developers.google.com/webmasters/control-crawl-index/docs/robots_txt#example-path-matches) a directive ending with `$` endicates that the pattern is matched against the end of the path.
+
   ```
   iex> MrRoboto.Rules.match_direction "/*.php$"
   :backwards
