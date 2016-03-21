@@ -1,4 +1,23 @@
 defmodule MrRoboto.Agent do
+  @moduledoc """
+  The Agent fetches the `robots.txt` file from a given site.
+
+  The agent is a very simple `GenServer` with the sole purpose of requesting the `robots.txt` file from a site.
+
+  The agent responds to a single call `{:check, site}` where site is the URL of the site from which `robots.txt` should be fetched.
+
+  The `:check` call returns one of three general responses:
+
+  * `{:ok, body}`
+  * `{:ok, :current}`
+  * `{:error, error}`
+
+  The Agent will only request the `robots.txt` file if it was last requested more than `MrRoboto.Agent.default_expiration` seconds ago.
+  If the Agent receives a request for a robots file and it has been requested inside the cache window it responds with `{:ok, :current}`, otherwise it responds with `{:ok, body}`
+
+  In the event of an error the Agent will return `{:error, error}` where `error` is the `HTTPoison` error.
+  """
+
   use GenServer
 
   @default_expiration 21600
