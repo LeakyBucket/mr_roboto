@@ -93,6 +93,38 @@ defmodule MrRoboto.Rules do
       longest_match rest, path, longest
     end
   end
+
+  @doc """
+  Determines whether the given directive applies to the given path.
+
+  Returns `true` or `false`
+
+  ## Examples
+
+  The most straightforward case involves vanilla paths.  As illustrated below the directive is matched character by character until there is a discrepency or the directive is exhausted.  This means that in the case of a directive ending with `$` the directive and path must be reversed before being checked.
+
+  ```
+  iex> MrRoboto.Rules.directive_applies? "/foo", "/foo/bar"
+  true
+
+  iex> MrRoboto.Rules.directive_applies? "/foo/bar", "/hello/bar"
+  false
+  ```
+
+  It is also possible to check a directive containing one or more wildcards
+
+  ```
+  iex> MrRoboto.Rules.directive_applies? "/foo*bar", "/foo/hello/world/bar"
+  true
+  ```
+
+  ```
+  iex> MrRoboto.Rules.directive_applies? "/f*b*", "/foo/bar.html"
+  true
+  ```
+
+  """
+  def directive_applies?(remaining_directive, remaining_path)
   def directive_applies?("", _remaining_path), do: true
   def directive_applies?(_remaining_directive, ""), do: false
   def directive_applies?(<<d :: size(8), d_rest :: binary>>, <<p :: size(8), p_rest :: binary>>) do
