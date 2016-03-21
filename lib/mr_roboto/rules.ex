@@ -57,6 +57,42 @@ defmodule MrRoboto.Rules do
         :forwards
     end
   end
+
+  @doc """
+  Finds the longest directive which matches the given path.
+
+  Returns a single directive `binary`.
+
+  ## Examples
+
+  In the case of multiple patterns which match.  Especially when those matches belong to both `Allow` and `Disallow` directives. It is necessary to pick a winner.  This is done by finding the longest (most specific) directive that matches the path.
+
+  ```
+  iex> directives = ["/", "/foo/bar", "/foo"]
+  ...> path = "/foo/bar"
+  ...> MrRoboto.Rules.longest_match directives, path, ""
+  "/foo/bar"
+  ```
+
+  """
+  def longest_match(directives, path, longest)
+  def longest_match([], _path, longest), do: longest
+  def longest_match([directive | rest], path, longest) do
+    matches = case match_direction(directive) do
+                :forwards ->
+                  directive_applies? directive, path
+                :backwards ->
+                  <<_ :: size(8), rev_dir :: binary>> = reverse(directive)
+                  rev_path = reverse(path)
+                  directive_applies? rev_dir, rev_path
+              end
+
+    if matches && (byte_size(directive) > byte_size(longest)) do
+      longest_match rest, path, directive
+    else
+      longest_match rest, path, longest
+    end
+  end
   def directive_applies?("", _remaining_path), do: true
   def directive_applies?(_remaining_directive, ""), do: false
   def directive_applies?(<<d :: size(8), d_rest :: binary>>, <<p :: size(8), p_rest :: binary>>) do
