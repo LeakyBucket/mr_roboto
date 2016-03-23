@@ -2,7 +2,11 @@ defmodule MrRoboto.Rules do
   @moduledoc """
   The Rules module defines the rules for a user-agent.
 
-  The Rules module defines the MrRoboto.Rules struct and a few functions which allow querying the rule set along with one function for setting the `crawl_delay`.
+  The Rules module defines the MrRoboto.Rules struct which provides a convenient
+  way to track the directives for a user agent
+
+  The Rules module also provides functionality for checking whether a path is
+  legal for a rule set
   """
 
   defstruct user_agent: "", allow: [], disallow: [], crawl_delay: 1000
@@ -14,9 +18,11 @@ defmodule MrRoboto.Rules do
 
   ## Examples
 
+    ```
     iex> rule = %MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}
     ...> MrRoboto.Rules.set_delay(rule, 2000)
     %MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 2000}
+    ```
 
   """
   def set_delay(rule, frequency) do
@@ -27,9 +33,63 @@ defmodule MrRoboto.Rules do
   Determines whether the specified `path` is allowed by the given `rule`
 
   Returns `true` or `false`
-  """
-  def allowed?(rule, path) do # Collect allow and disallow matches, the type with the longest match wins
 
+  ## Examples
+
+  When checking a path and a rule the determination is made based on the directive
+  with the longest match.  For example if `"/foo"` is allowed but `"/foo/bar"` is
+  disallowed a __path__ value of `"/foo/bar/baz"` would not be permitted.
+
+  ```
+  iex> rule = %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/foo/bar"]}
+  ...> Rules.permitted? rule, "/foo/bar/baz"
+  false
+  ```
+
+  Wildcard matches are counted as if they were normal directives.  So for example,
+  `"/foo*bar"` would have an equal weight as `"/foo/bar"`.  In this case the
+  response will be `:ambiguous` and it is up to the caller to decide how to
+  proceed.
+
+  ```
+  iex> rule = %Rules{user_agent: "*", allow: ["/foo*bar"], disallow: ["/foo/bar"]}
+  ...> Rules.permitted? rule, "/foo/bar"
+  :ambiguous
+  ```
+
+  `$` terminated directives are supported as well.  When matching against a `$`
+  terminated directive the dollar sign is ignored.  However when considering
+  match length it is not.
+
+  ```
+  iex> rule = %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/*.php$"]}
+  ...> Rules.permitted? rule, "/hello/world.php"
+  false
+  ```
+
+  """
+  def permitted?(rule, path) do
+    allow_check = Task.async(__MODULE__, :matching_allow, [rule, path])
+
+    disallow = matching_disallow(rule, path)
+    allow = Task.await(allow_check)
+
+    case byte_size(allow) do
+      a_size when a_size > byte_size(disallow) ->
+        true
+      a_size when a_size < byte_size(disallow) ->
+        false
+      _ ->
+        :ambiguous
+    end
+  end
+
+  def matching_allow(rule, path) do
+    longest_match rule.allow, path, ""
+  end
+
+  def matching_disallow(rule, path) do
+    longest_match rule.disallow, path, ""
   end
 
   @doc """
@@ -80,19 +140,25 @@ defmodule MrRoboto.Rules do
   def longest_match(directives, path, longest)
   def longest_match([], _path, longest), do: longest
   def longest_match([directive | rest], path, longest) do
-    matches = case match_direction(directive) do
-                :forwards ->
-                  directive_applies? directive, path
-                :backwards ->
-                  <<_ :: size(8), rev_dir :: binary>> = reverse(directive)
-                  rev_path = reverse(path)
-                  directive_applies? rev_dir, rev_path
-              end
+    {norm_dir, norm_path} = normalize(directive, path)
+    matches = directive_applies? norm_dir, norm_path
 
     if matches && (byte_size(directive) > byte_size(longest)) do
       longest_match rest, path, directive
     else
       longest_match rest, path, longest
+    end
+  end
+
+  defp normalize(directive, path) do
+    directive
+    |> match_direction
+    |> case do
+      :forwards ->
+        {directive, path}
+      :backwards ->
+        <<_ :: size(8), rev_dir :: binary>> = String.reverse(directive)
+        {rev_dir, String.reverse(path)}
     end
   end
 
@@ -164,6 +230,4 @@ defmodule MrRoboto.Rules do
         consume_until rest, target
     end
   end
-
-  defp reverse(string), do: List.to_string(Enum.reverse to_char_list(string))
 end

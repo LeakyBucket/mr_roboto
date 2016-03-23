@@ -3,12 +3,15 @@ defmodule MrRoboto.RulesTest do
 
   alias MrRoboto.Rules
 
-  @rules %Rules{}
   @directives ["/foo", "/hello/world/foo/bar", "/hello/world", "/foo/bar/world", "/*.php$"]
+  @disallows ["/hello", "/*world$"]
+  @allows ["/foo", "/*php$", "/foo*bar"]
   @delay 2000
 
+  @rule %Rules{user_agent: "*", allow: @allows, disallow: @disallows}
+
   test "set_delay sets the crawl_delay for the rule set" do
-    assert @delay = Rules.set_delay(@rules, @delay).crawl_delay
+    assert @delay = Rules.set_delay(@rule, @delay).crawl_delay
   end
 
   test "it indicates a forward match direction if the directive doesn't end in '$'" do
@@ -53,5 +56,17 @@ defmodule MrRoboto.RulesTest do
 
   test "it returns the longest when an end of path directive matches" do
     assert "/*.php$" = Rules.longest_match @directives, "/uncle/bob.php", ""
+  end
+
+  test "it returns true if the path is permitted under the given rule" do
+    assert Rules.permitted? @rule, "/foo/bar/baz.php"
+  end
+
+  test "it returns false if the path is not permitted under the given rule" do
+    refute Rules.permitted? @rule, "/this/is/our/world"
+  end
+
+  test "it indicates if the permission is ambiguous under the given rule" do
+    assert :ambiguous = Rules.permitted? @rule, "/hello.php"
   end
 end
