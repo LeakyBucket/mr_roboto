@@ -6,28 +6,19 @@ defmodule MrRoboto.AgentTest do
   @checked "https://www.google.com"
   @history %{@checked => :erlang.system_time(:seconds)}
 
-  test "start_link starts the server" do
-    assert {:ok, _pid} = start_agent
-  end
-
   test "handle_call {:check, site} returns the robot body if the site is new" do
-    {:ok, agent} = start_agent
-
-    assert {:ok, body} = GenServer.call agent, {:check, "https://www.google.com"}
+    assert {:ok, body} = GenServer.call Agent, {:check, "https://www.google.com"}
     assert is_binary(body)
   end
 
   test "handle_call {:check, site} indicates if robot check is current" do
-    {:ok, agent} = start_agent
-    GenServer.call agent, {:check, "https://www.lawlytics.com"}
+    GenServer.call Agent, {:check, "https://www.lawlytics.com"}
 
-    assert {:ok, :current} = GenServer.call agent, {:check, "https://www.lawlytics.com"}
+    assert {:ok, :current} = GenServer.call Agent, {:check, "https://www.lawlytics.com"}
   end
 
   test "handle_call {:check, site} indicates if there was an error retrieving the file" do
-    {:ok, agent} = start_agent
-
-    assert {:error, _reason} = GenServer.call agent, {:check, "http://lvh.me"}
+    assert {:error, _reason} = GenServer.call Agent, {:check, "http://lvh.me"}
   end
 
   test "update_robot indicates if the robots file has been fetched and is current" do
@@ -65,9 +56,5 @@ defmodule MrRoboto.AgentTest do
     new_history = Agent.update_timestamp("https://www.lawlytics.com", @history)
 
     assert Map.get(new_history, "https://www.lawlytics.com")
-  end
-
-  def start_agent do
-    Agent.start_link
   end
 end

@@ -25,7 +25,7 @@ defmodule MrRoboto.Agent do
   def start_link do
     HTTPoison.start
 
-    GenServer.start_link(__MODULE__, %{})
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
   def handle_call({:check, site}, _from, state) do
