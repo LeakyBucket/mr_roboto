@@ -17,7 +17,7 @@ defmodule MrRoboto.Warden do
   defstruct rule: nil, last_check: 0
 
   def start_link do
-    GenServer.start_link(__MODULE__, [])
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
   def handle_call({:crawl?, {agent, url}}, _from, state) do
@@ -94,7 +94,7 @@ defmodule MrRoboto.Warden do
 
   defp insert(rule_set, current_records, host) do
     rules = Enum.into(rule_set, %{}, fn rule ->
-      {rule.user_agent, rule}
+      {rule.user_agent, %__MODULE__{rule: rule}}
     end)
 
     Map.put current_records, host, rules
@@ -145,7 +145,8 @@ defmodule MrRoboto.Warden do
   def permitted?(%__MODULE__{rule: rule, last_check: last_check}, path) do
     ok_after = last_check + rule.crawl_delay
 
-    Rules.permitted?(rule, path)
+    rule
+    |> Rules.permitted?(path || "/")
     |> case do
       true ->
         ok_after < :erlang.system_time(:seconds)
