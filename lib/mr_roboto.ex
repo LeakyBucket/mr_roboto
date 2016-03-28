@@ -5,7 +5,8 @@ defmodule MrRoboto do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(MrRoboto.Agent, [])
+      worker(MrRoboto.Agent, []),
+      worker(MrRoboto.Warden, [])
     ]
 
     opts = [strategy: :one_for_one, name: MrRoboto]

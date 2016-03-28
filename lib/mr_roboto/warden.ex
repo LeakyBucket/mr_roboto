@@ -16,6 +16,10 @@ defmodule MrRoboto.Warden do
 
   defstruct rule: nil, last_check: 0
 
+  def start_link do
+    GenServer.start_link(__MODULE__, [])
+  end
+
   def handle_call({:crawl?, {agent, url}}, _from, state) do
     uri = URI.parse(url)
     updated_records = update_records(uri.host, state)
