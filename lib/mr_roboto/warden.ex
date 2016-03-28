@@ -44,7 +44,8 @@ defmodule MrRoboto.Warden do
   end
 
   defp fetch_record(user_agent, host, records) do
-    get_in(records, [host, user_agent])
+    records
+    |> get_in([host, user_agent])
     |> case do
       %__MODULE__{} = found ->
         found
@@ -79,7 +80,8 @@ defmodule MrRoboto.Warden do
 
   """
   def update_records(host, records) do
-    GenServer.call(Agent, {:check, host})
+    Agent
+    |> GenServer.call({:check, host})
     |> case do
       {:ok, :current} ->
         records
