@@ -39,15 +39,7 @@ defmodule MrRoboto.Warden do
     {:noreply, new_state}
   end
 
-  @doc """
-  Retrieves the record for the user-agent/host pair provided
-
-  Returns a `%MrRoboto.Warden` struct or `nil`
-
-  In the event that a record is not found for the specific _user-agent_ then the
-  wildcard record is returned.
-  """
-  def fetch_record(user_agent, host, records) do
+  defp fetch_record(user_agent, host, records) do
     get_in(records, [host, user_agent])
     |> case do
       %__MODULE__{} = found ->

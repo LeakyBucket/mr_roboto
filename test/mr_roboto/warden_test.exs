@@ -15,14 +15,6 @@ defmodule MrRoboto.WardenTest do
     }
   }
 
-  test "it fetches the Warden struct for the given host and agent" do
-    assert %Warden{rule: %Rules{user_agent: "google"}} = Warden.fetch_record "google", "www.lawlytics.com", @records
-  end
-
-  test "it returns the '*' rule if there is no specific agent record" do
-    assert %Warden{rule: %Rules{user_agent: "*"}} = Warden.fetch_record "google", "www.google.com", @records
-  end
-
   test "it doesn't update the records if the 'robots.txt' is current" do
     GenServer.call Agent, {:check, "www.yahoo.com"}
 
