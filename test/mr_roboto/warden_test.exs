@@ -23,11 +23,6 @@ defmodule MrRoboto.WardenTest do
     assert :disallowed = GenServer.call Warden, {:crawl?, {"mybot", "https://www.google.com/search"}}
   end
 
-  # Google doesn't actually specify a directive for the site root so this works.
-  test "the server indicates an ambiguous state" do
-    assert :ambiguous = GenServer.call Warden, {:crawl?, {"mybot", "https://www.google.com"}}
-  end
-
   test "it doesn't update the records if the 'robots.txt' is current" do
     GenServer.call Agent, {:check, "www.yahoo.com"}
 

@@ -74,10 +74,14 @@ defmodule MrRoboto.Rules do
     disallow = matching_disallow(rule, path)
     allow = Task.await(allow_check)
 
-    case byte_size(allow) do
-      a_size when a_size > byte_size(disallow) ->
+    disallow
+    |> byte_size
+    |> case do
+      0 ->
         true
-      a_size when a_size < byte_size(disallow) ->
+      b_size when b_size < byte_size(allow) ->
+        true
+      b_size when b_size > byte_size(allow) ->
         false
       _ ->
         :ambiguous
