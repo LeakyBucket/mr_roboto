@@ -14,7 +14,7 @@ defmodule MrRoboto.Warden do
   alias MrRoboto.Parser
   alias MrRoboto.Rules
 
-  defstruct rule: nil, last_check: 0
+  defstruct rule: nil, last_applied: 0
 
   def start_link do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -26,6 +26,7 @@ defmodule MrRoboto.Warden do
 
     agent
     |> fetch_record(uri.host, updated_records)
+    |> update_applied
     |> permitted?(uri.path)
     |> case do
       true ->
@@ -37,12 +38,6 @@ defmodule MrRoboto.Warden do
     end
   end
 
-  def handle_cast({:set_check, url, agent}, state) do
-    new_state = update_in state, [URI.parse(url).host, agent, :last_check], :erlang.system_time(:seconds)
-
-    {:noreply, new_state}
-  end
-
   defp fetch_record(user_agent, host, records) do
     records
     |> get_in([host, user_agent])
@@ -52,6 +47,10 @@ defmodule MrRoboto.Warden do
       _ ->
         get_in records, [host, "*"]
     end
+  end
+
+  defp update_applied(record) do
+    struct record, last_applied: :erlang.system_time(:seconds)
   end
 
   @doc """
@@ -73,7 +72,7 @@ defmodule MrRoboto.Warden do
     ```
       %{
         "google.com" => %{
-          "*" => %{rule: %MrRoboto.Rules{}, last_check: time_in_seconds},
+          "*" => %{rule: %MrRoboto.Rules{}, last_applied: time_in_seconds},
         }
       }
     ```
@@ -113,11 +112,11 @@ defmodule MrRoboto.Warden do
 
   ## Examples
 
-    If the rule indicates that the path is legal then the `last_check` time is
+    If the rule indicates that the path is legal then the `last_applied` time is
     compared to the current time before returning an answer.
 
     ```
-    iex> Warden.permitted? %Warden{rule: %Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}, last_check: 0}, "/"
+    iex> Warden.permitted? %Warden{rule: %Rules{user_agent: "*", allow: ["/"], disallow: [], crawl_delay: 1000}, last_applied: 0}, "/"
     # assuming the current time is large enough
     true
     # assuming the current time is say 5
@@ -127,7 +126,7 @@ defmodule MrRoboto.Warden do
     In the case where the `MrRoboto.Rules` struct indicates that the rule is
     not permitted then `false` is returned.
 
-    __Note__: The `last_check` is not considered in this case
+    __Note__: The `last_applied` is not considered in this case
 
     ```
     iex> Warden.permitted? %Warden{rule: %Rules{user_agent: "*", allow: [], disallow: ["/"]}}, "/"
@@ -137,14 +136,14 @@ defmodule MrRoboto.Warden do
     In the case where the `MrRoboto.Rules` struct is ambiguous as to permission
     then `:ambiguous` is returned.
 
-    __Note__: The `last_check` is not considered in this case
+    __Note__: The `last_applied` is not considered in this case
 
     ```
     iex> Warden.permitted? %Warden{rule: %Rules{user_agent: "*", allow: ["/"], disallow: ["/"]}}, "/"
     ```
 
   """
-  def permitted?(%__MODULE__{rule: rule, last_check: last_check}, path) do
+  def permitted?(%__MODULE__{rule: rule, last_applied: _last_applied}, path) do
     Rules.permitted?(rule, path || "/")
   end
 end

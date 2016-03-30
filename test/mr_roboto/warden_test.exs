@@ -7,11 +7,11 @@ defmodule MrRoboto.WardenTest do
 
   @records %{
     "www.google.com" => %{
-      "*" => %Warden{rule: %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/bar"]}, last_check: nil}
+      "*" => %Warden{rule: %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/bar"]}, last_applied: nil}
     },
     "www.lawlytics.com" => %{
-      "*" => %Warden{rule: %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/bar"]}, last_check: nil},
-      "google" => %Warden{rule: %Rules{user_agent: "google", allow: ["/foo"], disallow: ["/bar"]}, last_check: nil}
+      "*" => %Warden{rule: %Rules{user_agent: "*", allow: ["/foo"], disallow: ["/bar"]}, last_applied: nil},
+      "google" => %Warden{rule: %Rules{user_agent: "google", allow: ["/foo"], disallow: ["/bar"]}, last_applied: nil}
     }
   }
 
@@ -41,7 +41,7 @@ defmodule MrRoboto.WardenTest do
 
   test "it allows a check if the rule allows" do
     rule = %Rules{user_agent: "*", allow: ["/"], disallow: []}
-    warden_record = %Warden{rule: rule, last_check: :erlang.system_time(:seconds) - 3000}
+    warden_record = %Warden{rule: rule, last_applied: :erlang.system_time(:seconds) - 3000}
 
     assert Warden.permitted?(warden_record, "/")
   end
