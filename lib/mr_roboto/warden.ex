@@ -145,17 +145,6 @@ defmodule MrRoboto.Warden do
 
   """
   def permitted?(%__MODULE__{rule: rule, last_check: last_check}, path) do
-    ok_after = last_check + rule.crawl_delay
-
-    rule
-    |> Rules.permitted?(path || "/")
-    |> case do
-      true ->
-        ok_after < :erlang.system_time(:seconds)
-      false ->
-        false
-      :ambiguous ->
-        :ambiguous
-    end
+    Rules.permitted?(rule, path || "/")
   end
 end

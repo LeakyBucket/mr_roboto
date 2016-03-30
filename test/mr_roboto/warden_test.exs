@@ -39,18 +39,11 @@ defmodule MrRoboto.WardenTest do
     assert @records = Warden.update_records "uncle", @records
   end
 
-  test "it allows a check if the rule allows and the last check is sufficiently old" do
+  test "it allows a check if the rule allows" do
     rule = %Rules{user_agent: "*", allow: ["/"], disallow: []}
     warden_record = %Warden{rule: rule, last_check: :erlang.system_time(:seconds) - 3000}
 
     assert Warden.permitted?(warden_record, "/")
-  end
-
-  test "it disallows a check if the rule allows but the last check was too recent" do
-    rule = %Rules{user_agent: "*", allow: ["/"], disallow: []}
-    warden_record = %Warden{rule: rule, last_check: :erlang.system_time(:seconds)}
-
-    refute Warden.permitted?(warden_record, "/")
   end
 
   test "it disallows a check if the rule indicates it is not allowed" do
