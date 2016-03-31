@@ -9,7 +9,9 @@ defmodule MrRoboto.Rules do
   legal for a rule set
   """
 
-  defstruct user_agent: "", allow: [], disallow: [], crawl_delay: 1000
+  @default_delay Application.get_env(:mr_roboto, :default_delay) || 1000
+
+  defstruct user_agent: "", allow: [], disallow: [], crawl_delay: @default_delay
 
   @doc """
   Sets the *Crawl Delay* for the `user-agent`
@@ -27,6 +29,13 @@ defmodule MrRoboto.Rules do
   """
   def set_delay(rule, frequency) do
     struct(rule, crawl_delay: frequency)
+  end
+
+  @doc """
+  Returns the default `Crawl-delay`
+  """
+  def default_delay do
+    @default_delay
   end
 
   @doc """

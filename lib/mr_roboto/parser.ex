@@ -118,10 +118,10 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> MrRoboto.Parser.add_agent MrRoboto.Parser.new_block, "*"
-    %{user_agents: ["*"], allow: [], disallow: [], delay: nil}
+    %{user_agents: ["*"], allow: [], disallow: [], delay: 1000}
 
-    iex> MrRoboto.Parser.add_agent %{user_agents: ["*"], allow: [], disallow: [], delay: nil}, "google-news"
-    %{user_agents: ["google-news", "*"], allow: [], disallow: [], delay: nil}
+    iex> MrRoboto.Parser.add_agent %{user_agents: ["*"], allow: [], disallow: [], delay: 1000}, "google-news"
+    %{user_agents: ["google-news", "*"], allow: [], disallow: [], delay: 1000}
 
   """
   def add_agent(block, name) do
@@ -138,10 +138,10 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> MrRoboto.Parser.add_allow MrRoboto.Parser.new_block, "/"
-    %{user_agents: [], allow: ["/"], disallow: [], delay: nil}
+    %{user_agents: [], allow: ["/"], disallow: [], delay: 1000}
 
-    iex> MrRoboto.Parser.add_allow %{user_agents: [], allow: ["/"], disallow: [], delay: nil}, "/foo/"
-    %{user_agents: [], allow: ["/foo/", "/"], disallow: [], delay: nil}
+    iex> MrRoboto.Parser.add_allow %{user_agents: [], allow: ["/"], disallow: [], delay: 1000}, "/foo/"
+    %{user_agents: [], allow: ["/foo/", "/"], disallow: [], delay: 1000}
 
   """
   def add_allow(block, name) do
@@ -158,10 +158,10 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> MrRoboto.Parser.add_disallow MrRoboto.Parser.new_block, "/"
-    %{user_agents: [], allow: [], disallow: ["/"], delay: nil}
+    %{user_agents: [], allow: [], disallow: ["/"], delay: 1000}
 
-    iex> MrRoboto.Parser.add_disallow %{user_agents: [], allow: [], disallow: ["/"], delay: nil}, "/foo/"
-    %{user_agents: [], allow: [], disallow: ["/foo/", "/"], delay: nil}
+    iex> MrRoboto.Parser.add_disallow %{user_agents: [], allow: [], disallow: ["/"], delay: 1000}, "/foo/"
+    %{user_agents: [], allow: [], disallow: ["/foo/", "/"], delay: 1000}
   """
   def add_disallow(block, path) do
     Map.update(block, :disallow, [path], fn current ->
@@ -176,11 +176,11 @@ defmodule MrRoboto.Parser do
 
   ## Examples
 
-    iex> block = %{user_agents: ["*"], allow: ["/"], disallow: ["/foo/"], delay: nil}
+    iex> block = %{user_agents: ["*"], allow: ["/"], disallow: ["/foo/"]}
     ...> MrRoboto.Parser.build_rules block
     [%MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}]
 
-    iex> block = %{user_agents: ["google-news", "*"], allow: ["/"], disallow: ["/foo/"], delay: nil}
+    iex> block = %{user_agents: ["google-news", "*"], allow: ["/"], disallow: ["/foo/"]}
     ...> MrRoboto.Parser.build_rules block
     [%MrRoboto.Rules{user_agent: "google-news", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}, %MrRoboto.Rules{user_agent: "*", allow: ["/"], disallow: ["/foo/"], crawl_delay: 1000}]
 
@@ -199,10 +199,10 @@ defmodule MrRoboto.Parser do
   ## Examples
 
     iex> MrRoboto.Parser.new_block
-    %{user_agents: [], allow: [], disallow: [], delay: nil}
+    %{user_agents: [], allow: [], disallow: [], delay: 1000}
 
   """
   def new_block do
-    %{user_agents: [], allow: [], disallow: [], delay: nil}
+    %{user_agents: [], allow: [], disallow: [], delay: Rules.default_delay}
   end
 end

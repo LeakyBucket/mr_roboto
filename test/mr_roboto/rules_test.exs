@@ -14,6 +14,10 @@ defmodule MrRoboto.RulesTest do
     assert @delay = Rules.set_delay(@rule, @delay).crawl_delay
   end
 
+  test "default delay" do
+    assert 1000 = Rules.default_delay
+  end
+
   test "it indicates a forward match direction if the directive doesn't end in '$'" do
     assert :forwards = Rules.match_direction "/foo/"
   end
