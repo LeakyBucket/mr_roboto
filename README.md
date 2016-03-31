@@ -1,7 +1,7 @@
 # MrRoboto
 
 [![Coverage Status](https://coveralls.io/repos/github/LeakyBucket/mr_roboto/badge.svg?branch=master)](https://coveralls.io/github/LeakyBucket/mr_roboto?branch=master)
-[![Build](https://travis-ci.org/LeakyBucket/mr_roboto.svg?branch=master)]
+![Build](https://travis-ci.org/LeakyBucket/mr_roboto.svg?branch=master)
 
 A simple `robots.txt` service.  MrRoboto will fetch and parse `robots.txt` files for you and indicate whether a path is crawlable by your user agent.  It also has primitive support for the `Crawl-dealy` directive.
 
