@@ -3,9 +3,10 @@ defmodule MrRoboto.Mixfile do
 
   def project do
     [app: :mr_roboto,
-     version: "0.0.1",
+     version: "1.0.0",
      elixir: "~> 1.2",
      name: "Mr. Roboto",
+     description: "A simple robots.txt service",
      source_url: "https://github.com/LeakyBucket/mr_roboto",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -36,5 +37,18 @@ defmodule MrRoboto.Mixfile do
      {:coverex, "~> 1.4.8", only: :test},
      {:earmark, "~> 0.1", only: :dev},
      {:ex_doc, "~> 0.11", only: :dev}]
+  end
+
+  defp description do
+    """
+    A simple robots.txt service.
+    """
+  end
+
+  defp package do
+    [
+     maintainers: ["Glen Holcomb"],
+     licenses: ["MIT"],
+    ]
   end
 end
