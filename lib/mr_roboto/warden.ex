@@ -38,7 +38,7 @@ defmodule MrRoboto.Warden do
     end
   end
 
-  def handle_call({:last_checked, {agent, url}}, _from, state) do
+  def handle_call({:delay_info, {agent, url}}, _from, state) do
     uri = URI.parse(url)
 
     last_checked = agent
@@ -47,7 +47,7 @@ defmodule MrRoboto.Warden do
       nil ->
         nil
       record ->
-        record.last_applied
+        %{delay: record.rule.crawl_delay, last_checked: record.last_applied}
     end
 
     {:reply, last_checked, state}

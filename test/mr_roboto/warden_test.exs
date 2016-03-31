@@ -24,7 +24,7 @@ defmodule MrRoboto.WardenTest do
   end
 
   test "retrieving the time for the most recent rule check" do
-    assert 0 = GenServer.call Warden, {:last_checked, {"*", "http://www.google.com"}}
+    assert %{delay: 1000, last_checked: 0} = GenServer.call Warden, {:delay_info, {"*", "http://www.google.com"}}
   end
 
   test "it doesn't update the records if the 'robots.txt' is current" do
