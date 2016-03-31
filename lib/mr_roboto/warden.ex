@@ -38,6 +38,21 @@ defmodule MrRoboto.Warden do
     end
   end
 
+  def handle_call({:last_checked, {agent, url}}, _from, state) do
+    uri = URI.parse(url)
+
+    last_checked = agent
+    |> fetch_record(uri.host, state)
+    |> case do
+      nil ->
+        nil
+      record ->
+        record.last_applied
+    end
+
+    {:reply, last_checked, state}
+  end
+
   defp fetch_record(user_agent, host, records) do
     records
     |> get_in([host, user_agent])

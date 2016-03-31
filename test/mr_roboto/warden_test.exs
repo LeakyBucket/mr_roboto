@@ -23,6 +23,10 @@ defmodule MrRoboto.WardenTest do
     assert :disallowed = GenServer.call Warden, {:crawl?, {"mybot", "https://www.google.com/search"}}
   end
 
+  test "retrieving the time for the most recent rule check" do
+    assert 0 = GenServer.call Warden, {:last_checked, {"*", "http://www.google.com"}}
+  end
+
   test "it doesn't update the records if the 'robots.txt' is current" do
     GenServer.call Agent, {:check, "www.yahoo.com"}
 
